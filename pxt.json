@@ -20,7 +20,8 @@
         "arcade-character-animations": "github:microsoft/arcade-character-animations#v0.1.0",
         "arcade-sprite-events": "github:riknoll/arcade-sprite-events#dc93eec8412053ebbd2b8f01cf5b6ae285d28900",
         "Color Fading": "github:jwunderl/pxt-color#v0.2.3",
-        "arcade-tile-util": "github:microsoft/arcade-tile-util#v1.2.0"
+        "arcade-tile-util": "github:microsoft/arcade-tile-util#v1.2.0",
+        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.2"
     },
     "files": [
         "main.blocks",
