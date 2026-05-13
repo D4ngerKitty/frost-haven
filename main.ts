@@ -17,17 +17,17 @@ function start_bossfight (num: number) {
     statusbar = statusbars.create(120, 5, StatusBarKind.Health)
     statusbar.setFlag(SpriteFlag.RelativeToCamera, true)
     statusbar.y += 55
+    statusbar.max = sprites.readDataNumber(thebossSprite, "HP")
+    statusbar.value = sprites.readDataNumber(thebossSprite, "HP")
     statusbar.setColor(4, 7, 5)
     statusbar.setBarBorder(1, 5)
     statusbar.setStatusBarFlag(StatusBarFlag.SmoothTransition, true)
-    bossname = fancyText.create("-the big bug-")
-    if (num == 1) {
-        fancyText.setText(bossname, "-The Witch's Pet-")
-    }
+    bossname = fancyText.create(sprites.readDataString(thebossSprite, "boss_name"))
     fancyText.setFont(bossname, fancyText.rounded_small)
     fancyText.setColor(bossname, 3)
     bossname.setFlag(SpriteFlag.RelativeToCamera, true)
     bossname.y += 45
+    bossname.z += 45
     bossname.x = scene.screenWidth() / 2
 }
 function summon_enemy (tile_repaced: Image, ememy_type: string) {
@@ -191,7 +191,7 @@ function summon_enemy (tile_repaced: Image, ememy_type: string) {
         characterAnimations.rule(Predicate.FacingRight)
         )
         sprites.setDataNumber(enemysprite, "movement_type", 1)
-        sprites.setDataNumber(enemysprite, "HP", 4)
+        sprites.setDataNumber(enemysprite, "HP", 3)
         sprites.setDataNumber(enemysprite, "damgedealt", -1)
         sprites.setDataNumber(enemysprite, "Xmovement", -50)
         sprites.setDataNumber(enemysprite, "speed", 50)
@@ -255,14 +255,43 @@ function createBoss (myImage: Image, num: number) {
             ....7777777777777777777777333...
             `, SpriteKind.aboss)
         sprites.setDataNumber(thebossSprite, "id", 1)
-        sprites.setDataNumber(thebossSprite, "damge", -1)
-        sprites.setDataNumber(thebossSprite, "HP", 25)
+        sprites.setDataNumber(thebossSprite, "damgedealt", -1)
+        sprites.setDataNumber(thebossSprite, "HP", 70)
         sprites.setDataBoolean(thebossSprite, "attacking cycal", false)
         thebossSprite.ay = 300
+        sprites.setDataString(thebossSprite, "boss_name", "-The Witch's Pet-")
         tiles.placeOnRandomTile(thebossSprite, myImage)
     }
-    tileUtil.replaceAllTiles(assets.tile`myTile86`, assets.tile`transparency16`)
+    tileUtil.replaceAllTiles(myImage, assets.tile`transparency16`)
 }
+events.spriteEvent(SpriteKind.aboss, SpriteKind.playerAttackHitboxType, events.SpriteEvent.StartOverlapping, function (sprite, otherSprite) {
+    statusbar.value += sprites.readDataNumber(otherSprite, "damge")
+    if (statusbar.value > 0) {
+        if (blockSettings.readNumber("paformacemode") == 1) {
+            partical_location = [(sprite.x + otherSprite.x) / 2, (sprite.y + otherSprite.y) / 2]
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), partical_location[0], partical_location[1], 50, 16, 7)
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(5, ExtraEffectPresetShape.Spark), partical_location[0], partical_location[1], 50, 16, 7)
+        } else {
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+        }
+    } else {
+        inbossfight = false
+        sprites.destroy(sprite)
+        sprites.destroy(bossname)
+        sprites.destroy(statusbar)
+        timer.background(function () {
+            for (let value of tiles.getTilesByType(assets.tile`myTile84`)) {
+                tiles.setTileAt(value, assets.tile`transparency16`)
+                tiles.setWallAt(value, false)
+                pause(200)
+            }
+        })
+        if (blockSettings.readNumber("paformacemode") == 1) {
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Explosion), sprite.x, sprite.y, 50, 32, 20)
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(5, ExtraEffectPresetShape.Explosion), sprite.x, sprite.y, 50, 32, 20)
+        }
+    }
+})
 function handle_walls_and_envorment_intractions () {
     if (zone == 201) {
         if (mySprite.tilemapLocation().column == 11) {
@@ -280,6 +309,94 @@ function handle_walls_and_envorment_intractions () {
                 })
             }
         }
+    }
+}
+function create_damge_wall (volY: number, Vol_X: number, gravaty: number, spawn: tiles.Location, damge: number, bool: boolean, lifespawn: number, myImage: Image, id: number, zdeath: number) {
+    sprites.setDataSprite(wallcontrol, "movingwalldamge" + "1", sprites.create(myImage, SpriteKind.wall))
+    sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1"), "damge", damge)
+    sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1"), "id", id)
+    tiles.placeOnTile(sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1"), spawn)
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").ay = gravaty
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").vx = Vol_X
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").vy = volY
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").setFlag(SpriteFlag.GhostThroughWalls, bool)
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").lifespan = lifespawn
+    sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1").z = zdeath
+    if (id == 1) {
+        animation.runImageAnimation(
+        sprites.readDataSprite(wallcontrol, "movingwalldamge" + "1"),
+        [img`
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            4 5 5 5 4 5 5 5 5 5 5 5 5 5 5 4 
+            4 5 5 5 4 5 5 5 5 5 5 5 5 5 5 4 
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            4 5 5 5 5 5 5 5 4 5 5 5 5 5 5 4 
+            4 5 5 5 5 5 5 5 4 5 5 5 5 5 5 4 
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            4 5 5 5 5 4 5 5 5 5 5 5 5 5 5 4 
+            4 5 5 5 5 4 5 5 5 5 5 5 5 5 5 4 
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            4 5 5 5 5 5 5 5 5 5 5 4 5 5 5 4 
+            4 5 5 5 5 5 5 5 5 5 5 4 5 5 5 4 
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            4 5 5 5 5 5 4 5 5 5 5 5 5 5 5 4 
+            4 5 5 5 5 5 4 5 5 5 5 5 5 5 5 4 
+            4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+            `,img`
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            5 6 6 6 5 6 6 6 6 6 6 6 6 6 6 5 
+            5 6 6 6 5 6 6 6 6 6 6 6 6 6 6 5 
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            5 6 6 6 6 6 6 6 5 6 6 6 6 6 6 5 
+            5 6 6 6 6 6 6 6 5 6 6 6 6 6 6 5 
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            5 6 6 6 6 5 6 6 6 6 6 6 6 6 6 5 
+            5 6 6 6 6 5 6 6 6 6 6 6 6 6 6 5 
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            5 6 6 6 6 6 6 6 6 6 6 5 6 6 6 5 
+            5 6 6 6 6 6 6 6 6 6 6 5 6 6 6 5 
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            5 6 6 6 6 6 5 6 6 6 6 6 6 6 6 5 
+            5 6 6 6 6 6 5 6 6 6 6 6 6 6 6 5 
+            5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 
+            `,img`
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 7 7 7 6 7 7 7 7 7 7 7 7 7 7 6 
+            6 7 7 7 6 7 7 7 7 7 7 7 7 7 7 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 7 7 7 7 7 7 7 6 7 7 7 7 7 7 6 
+            6 7 7 7 7 7 7 7 6 7 7 7 7 7 7 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 7 7 7 7 6 7 7 7 7 7 7 7 7 7 6 
+            6 7 7 7 7 6 7 7 7 7 7 7 7 7 7 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 7 7 7 7 7 7 7 7 7 7 6 7 7 7 6 
+            6 7 7 7 7 7 7 7 7 7 7 6 7 7 7 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            6 7 7 7 7 7 6 7 7 7 7 7 7 7 7 6 
+            6 7 7 7 7 7 6 7 7 7 7 7 7 7 7 6 
+            6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 
+            `,img`
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            7 8 8 8 7 8 8 8 8 8 8 8 8 8 8 7 
+            7 8 8 8 7 8 8 8 8 8 8 8 8 8 8 7 
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            7 8 8 8 8 8 8 8 7 8 8 8 8 8 8 7 
+            7 8 8 8 8 8 8 8 7 8 8 8 8 8 8 7 
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            7 8 8 8 8 7 8 8 8 8 8 8 8 8 8 7 
+            7 8 8 8 8 7 8 8 8 8 8 8 8 8 8 7 
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            7 8 8 8 8 8 8 8 8 8 8 7 8 8 8 7 
+            7 8 8 8 8 8 8 8 8 8 8 7 8 8 8 7 
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            7 8 8 8 8 8 7 8 8 8 8 8 8 8 8 7 
+            7 8 8 8 8 8 7 8 8 8 8 8 8 8 8 7 
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+            `],
+        100,
+        false
+        )
     }
 }
 browserEvents.ArrowUp.onEvent(browserEvents.KeyEvent.Pressed, function () {
@@ -585,9 +702,26 @@ controller.menu.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 scene.onHitWall(SpriteKind.wall, function (sprite, location) {
     if (!(spriteutils.isDestroyed(wallcontrol))) {
-        tiles.setWallAt(location.getNeighboringLocation(CollisionDirection.Top), true)
-        tiles.setTileAt(location.getNeighboringLocation(CollisionDirection.Top), assets.tile`myTile84`)
-        sprites.destroy(sprite)
+        if (sprites.readDataNumber(sprite, "id") == 2) {
+            tiles.setWallAt(location.getNeighboringLocation(CollisionDirection.Top), true)
+            tiles.setTileAt(location.getNeighboringLocation(CollisionDirection.Top), sprite.image)
+            sprites.destroy(sprite)
+        }
+    }
+})
+events.spriteEvent(SpriteKind.Player, SpriteKind.wall, events.SpriteEvent.StartOverlapping, function (sprite, otherSprite) {
+    if (!(sprites.readDataNumber(otherSprite, "damge") == 0)) {
+        if (blockSettings.readNumber("paformacemode") == 1) {
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(5, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+        } else {
+            extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+        }
+        playerlife += sprites.readDataNumber(otherSprite, "damge")
+        scene.cameraShake(6, 100)
+        if (playerlife <= 0) {
+            kill_player("you died to a rock", "WOMP womp")
+        }
     }
 })
 function handle_npc_intractions () {
@@ -657,6 +791,19 @@ function handle_npc_intractions () {
         }
     }
 }
+events.spriteEvent(SpriteKind.Player, SpriteKind.aboss, events.SpriteEvent.StartOverlapping, function (sprite, otherSprite) {
+    if (blockSettings.readNumber("paformacemode") == 1) {
+        extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+        extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(5, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+    } else {
+        extraEffects.createSpreadEffectAt(extraEffects.createSingleColorSpreadEffectData(4, ExtraEffectPresetShape.Spark), sprite.x, sprite.y, 50, 16, 7)
+    }
+    playerlife += sprites.readDataNumber(otherSprite, "damgedealt")
+    scene.cameraShake(6, 100)
+    if (playerlife <= 0) {
+        kill_player("you died to boss", "Git GUD")
+    }
+})
 function Refresh_invantory () {
     invantory.setImage(assests[0].clone())
     number = 0
@@ -3584,10 +3731,13 @@ function createlevel (num: number) {
                 7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
                 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
                 `, SpriteKind.wall))
+            sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "damge", 0)
+            sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "id", 2)
             tiles.placeOnTile(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), value)
             wall_number += 1
             tiles.setTileAt(value, assets.tile`myTile3`)
         }
+        item_can_pick_up(assets.tile`myTile22`, 5, assets.tile`myTile81`)
     }
     if (false) {
         for (let value of tiles.getTilesByType(assets.tile`myTile16`)) {
@@ -7856,6 +8006,15 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
         move_selector(-1, "left")
     }
 })
+scene.onOverlapTile(SpriteKind.wall, assets.tile`myTile59`, function (sprite, location) {
+    if (sprites.readDataNumber(sprite, "id") == 1) {
+        if (blockSettings.readNumber("paformacemode") == 1) {
+            sprites.destroy(sprite, effects.disintegrate, 500)
+        } else {
+            sprite.lifespan = 200
+        }
+    }
+})
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (!(menu_open)) {
         move_selector(1, "right")
@@ -8474,13 +8633,14 @@ let wallcontrol: Sprite = null
 let wall_number = 0
 let wallsactive = false
 let zone = 0
+let partical_location: number[] = []
 let dashes = 0
 let mySprite: Sprite = null
 let indash = false
 let inattack = false
-let thebossSprite: Sprite = null
 let enemysprite: Sprite = null
 let bossname: fancyText.TextSprite = null
+let thebossSprite: Sprite = null
 let statusbar: StatusBarSprite = null
 let inbossfight = false
 let canrun = false
@@ -9775,7 +9935,11 @@ forever(function () {
                 if (!(sprites.readDataBoolean(thebossSprite, "attacking cycal"))) {
                     sprites.setDataBoolean(thebossSprite, "attacking cycal", true)
                     sprites.setDataNumber(thebossSprite, "random_number", 2)
-                    pause(randint(500, 1000))
+                    if (statusbar.value < 35) {
+                        pause(400)
+                    } else {
+                        pause(randint(500, 1000))
+                    }
                     if (Math.percentChance(50)) {
                         animation.runImageAnimation(
                         thebossSprite,
@@ -9949,43 +10113,45 @@ forever(function () {
                         false
                         )
                         pause(400)
-                        summon_enemy(img`
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . 3 . . . 
-                            . . . 7 . . 7 . . 7 3 . 3 4 3 . 
-                            . . . 7 7 . 7 7 . 7 4 3 4 4 3 . 
-                            . . . 7 7 7 7 7 7 7 4 4 4 4 3 . 
-                            . 3 3 3 7 7 7 7 7 7 4 4 4 3 . . 
-                            3 4 4 4 7 4 7 7 7 7 7 4 3 7 7 7 
-                            . 3 4 4 7 4 7 4 7 7 7 4 7 7 7 . 
-                            . . 3 7 7 4 7 4 7 7 7 7 7 7 3 3 
-                            . 7 7 7 7 7 7 7 7 7 7 7 7 7 4 3 
-                            . . 7 7 7 7 7 7 7 7 7 7 7 4 3 . 
-                            `, "boss_1_bug_1")
-                        pause(200)
-                        summon_enemy(img`
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . . . . . 
-                            . . . . . . . . . . . . 3 . . . 
-                            . . . 7 . . 7 . . 7 3 . 3 4 3 . 
-                            . . . 7 7 . 7 7 . 7 4 3 4 4 3 . 
-                            . . . 7 7 7 7 7 7 7 4 4 4 4 3 . 
-                            . 3 3 3 7 7 7 7 7 7 4 4 4 3 . . 
-                            3 4 4 4 7 4 7 7 7 7 7 4 3 7 7 7 
-                            . 3 4 4 7 4 7 4 7 7 7 4 7 7 7 . 
-                            . . 3 7 7 4 7 4 7 7 7 7 7 7 3 3 
-                            . 7 7 7 7 7 7 7 7 7 7 7 7 7 4 3 
-                            . . 7 7 7 7 7 7 7 7 7 7 7 4 3 . 
-                            `, "boss_1_bug_1")
+                        if (inbossfight) {
+                            summon_enemy(img`
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . 3 . . . 
+                                . . . 7 . . 7 . . 7 3 . 3 4 3 . 
+                                . . . 7 7 . 7 7 . 7 4 3 4 4 3 . 
+                                . . . 7 7 7 7 7 7 7 4 4 4 4 3 . 
+                                . 3 3 3 7 7 7 7 7 7 4 4 4 3 . . 
+                                3 4 4 4 7 4 7 7 7 7 7 4 3 7 7 7 
+                                . 3 4 4 7 4 7 4 7 7 7 4 7 7 7 . 
+                                . . 3 7 7 4 7 4 7 7 7 7 7 7 3 3 
+                                . 7 7 7 7 7 7 7 7 7 7 7 7 7 4 3 
+                                . . 7 7 7 7 7 7 7 7 7 7 7 4 3 . 
+                                `, "boss_1_bug_1")
+                            pause(200)
+                            summon_enemy(img`
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . . . . . 
+                                . . . . . . . . . . . . 3 . . . 
+                                . . . 7 . . 7 . . 7 3 . 3 4 3 . 
+                                . . . 7 7 . 7 7 . 7 4 3 4 4 3 . 
+                                . . . 7 7 7 7 7 7 7 4 4 4 4 3 . 
+                                . 3 3 3 7 7 7 7 7 7 4 4 4 3 . . 
+                                3 4 4 4 7 4 7 7 7 7 7 4 3 7 7 7 
+                                . 3 4 4 7 4 7 4 7 7 7 4 7 7 7 . 
+                                . . 3 7 7 4 7 4 7 7 7 7 7 7 3 3 
+                                . 7 7 7 7 7 7 7 7 7 7 7 7 7 4 3 
+                                . . 7 7 7 7 7 7 7 7 7 7 7 4 3 . 
+                                `, "boss_1_bug_1")
+                        }
                         pause(400)
                     } else {
                         animation.runImageAnimation(
@@ -10036,8 +10202,6 @@ forever(function () {
                             ................................
                             ................................
                             ................................
-                            ................................
-                            ................................
                             ..................7........333..
                             ............7....77.......3343..
                             .....77....777...77733...33443..
@@ -10050,12 +10214,113 @@ forever(function () {
                             334444443777777777773443343377..
                             34444444377667777777334433377777
                             .334444337666677667773444377777.
+                            ...334437766667666677344377777..
+                            .....333776666766667733377777...
                             ......37776666766667733777773...
                             .....7377766667666677377777443..
                             ..77777777766777667777777734443.
                             .7777777777777777777777773444443
                             ...7777777777777777777777344433.
                             ....7777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
                             `,img`
                             ................................
                             ..................7........333..
@@ -10188,6 +10453,51 @@ forever(function () {
                             .7777777777777777777777773444443
                             ...7777777777777777777777344433.
                             ....7777777777777777777777333...
+                            `],
+                        100,
+                        false
+                        )
+                        pause(500)
+                        thebossSprite.vy = -100
+                        pause(100)
+                        while (!(thebossSprite.isHittingTile(CollisionDirection.Bottom))) {
+                            pause(10)
+                        }
+                        animation.runImageAnimation(
+                        thebossSprite,
+                        [img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ....................7.......333.
+                            ...........7.......77......3343.
+                            ....777...777.....77733...33443.
+                            ...77777777777....77743..334443.
+                            ....777777777777..7774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
                             `,img`
                             ................................
                             ................................
@@ -10201,59 +10511,26 @@ forever(function () {
                             ................................
                             ................................
                             ................................
-                            ..................7........333..
-                            ............7....77.......3343..
-                            .....77....777...77733...33443..
-                            .....777...7777..77743..334443..
-                            ......7777.77777.7774333344443..
-                            ......777777777777774433444443..
-                            .......77777777777774444444443..
-                            ....33347777777777773444444433..
+                            ................................
+                            ................................
+                            ....................7.......333.
+                            ...........7.......77......3343.
+                            ....777...777.....77733...33443.
+                            ...77777777777....77743..334443.
+                            ....777777777777..7774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
                             .3334444477777777777344344433...
                             334444443777777777773443343377..
                             34444444377667777777334433377777
-                            .334444337666677667773444377777.
-                            ...334437766667666677344377777..
-                            .....333776666766667733377777...
-                            ......37776666766667733777773...
-                            .....7377766667666677377777443..
-                            ..77777777766777667777777734443.
-                            .7777777777777777777777773444443
-                            ...7777777777777777777777344433.
-                            ....7777777777777777777777333...
-                            `,img`
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ................................
-                            ..................7........333..
-                            ............7....77.......3343..
-                            .....77....777...77733...33443..
-                            .....777...7777..77743..334443..
-                            ......7777.77777.7774333344443..
-                            ......777777777777774433444443..
-                            .......77777777777774444444443..
-                            ....33347777777777773444444433..
-                            .3334444477777777777344344433...
-                            334444443777777777773443343377..
-                            34444444377667777777334433377777
-                            .334444337666677667773444377777.
-                            ......37776666766667733777773...
-                            .....7377766667666677377777443..
-                            ..77777777766777667777777734443.
-                            .7777777777777777777777773444443
-                            ...7777777777777777777777344433.
-                            ....7777777777777777777777333...
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
                             `,img`
                             ................................
                             ................................
@@ -10291,11 +10568,27 @@ forever(function () {
                         200,
                         false
                         )
-                        pause(500)
-                        thebossSprite.vy = -100
-                        pause(1000)
+                        if (inbossfight) {
+                            create_damge_wall(-100, 0, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-100, 0, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-100, 40, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-100, 50, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-100, -40, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-100, -50, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-150, -60, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-150, 60, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-170, -50, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            create_damge_wall(-170, 50, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
+                            if (statusbar.value < 35) {
+                                pause(500)
+                            } else {
+                                pause(1000)
+                            }
+                        }
                     }
-                    sprites.setDataBoolean(thebossSprite, "attacking cycal", false)
+                    if (inbossfight) {
+                        sprites.setDataBoolean(thebossSprite, "attacking cycal", false)
+                    }
                 }
             })
         }
