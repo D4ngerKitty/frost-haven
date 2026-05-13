@@ -191,7 +191,7 @@ function summon_enemy (tile_repaced: Image, ememy_type: string) {
         characterAnimations.rule(Predicate.FacingRight)
         )
         sprites.setDataNumber(enemysprite, "movement_type", 1)
-        sprites.setDataNumber(enemysprite, "HP", 3)
+        sprites.setDataNumber(enemysprite, "HP", 2)
         sprites.setDataNumber(enemysprite, "damgedealt", -1)
         sprites.setDataNumber(enemysprite, "Xmovement", -50)
         sprites.setDataNumber(enemysprite, "speed", 50)
@@ -9936,11 +9936,11 @@ forever(function () {
                     sprites.setDataBoolean(thebossSprite, "attacking cycal", true)
                     sprites.setDataNumber(thebossSprite, "random_number", 2)
                     if (statusbar.value < 35) {
-                        pause(400)
+                        pause(1000)
                     } else {
-                        pause(randint(500, 1000))
+                        pause(randint(1000, 2000))
                     }
-                    if (Math.percentChance(50)) {
+                    if (Math.percentChance(40)) {
                         animation.runImageAnimation(
                         thebossSprite,
                         [img`
@@ -10582,7 +10582,7 @@ forever(function () {
                             if (statusbar.value < 35) {
                                 pause(500)
                             } else {
-                                pause(1000)
+                                pause(500)
                             }
                         }
                     }
