@@ -550,6 +550,10 @@ function move_into_house (num: number, which_house: number) {
             tiles.placeOnTile(mySprite, tiles.getTileLocation(28, 26))
             camlockedonplayer = false
             tiles.placeOnTile(cam, tiles.getTileLocation(32, 26))
+        } else if (which_house == 4) {
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(43, 11))
+            camlockedonplayer = false
+            tiles.placeOnTile(cam, tiles.getTileLocation(45, 11))
         }
     } else if (num == 2) {
         if (which_house == 1) {
@@ -560,6 +564,8 @@ function move_into_house (num: number, which_house: number) {
             tiles.placeOnTile(mySprite, tiles.getTileLocation(39, 19))
         } else if (which_house == 4) {
             tiles.placeOnTile(mySprite, tiles.getTileLocation(47, 18))
+        } else if (which_house == 5) {
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(55, 18))
         }
     }
 }
@@ -3253,6 +3259,92 @@ function createlevel (num: number) {
             . . . . . . 7 . . 7 7 . 7 . . . 
             . . . . . . 7 . . 7 . . . 7 . . 
             `], assets.tile`myTile43`)
+        makeNpc(8, assets.tile`myTile87`, [img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . 5 . 5 . . . . . 
+            . . . . . . . 5 5 5 5 . . . 3 . 
+            . . . . . . 4 5 5 5 5 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . . 6 . 
+            . . . . . . . 5 5 5 . . . 6 5 . 
+            . . . . . . . . . . . . . . 6 . 
+            . . . . . . 6 6 6 6 6 . . . 5 6 
+            . . . . . 6 6 6 6 6 6 6 4 4 6 . 
+            . . . . . 6 6 6 6 6 6 6 . 6 5 . 
+            . . . . . 4 6 6 6 6 . . . . 5 . 
+            . . . . . 4 7 6 6 7 . . . . 5 . 
+            . . . . . . 7 7 . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . 5 . 5 . . . . . 
+            . . . . . . . 5 5 5 5 . . . 3 . 
+            . . . . . . 4 5 5 5 5 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . 4 4 3 
+            . . . . . . 4 5 5 5 5 . . . 6 . 
+            . . . . . . . 5 5 5 . . . 6 5 . 
+            . . . . . . . . . . . . . . 6 . 
+            . . . . . . 6 6 6 6 6 . . . 5 6 
+            . . . . . 6 6 6 6 6 6 6 4 4 6 . 
+            . . . . . 6 6 6 6 6 . 6 . 6 5 . 
+            . . . . . 4 7 6 6 6 . . . . 5 . 
+            . . . . . 4 7 6 7 7 . . . . 5 . 
+            . . . . . . 7 7 . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . 5 . 5 . . . . . 
+            . . . . . . . 5 5 5 5 . . . 3 . 
+            . . . . . . 4 5 5 5 5 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . 4 4 3 
+            . . . . . . 4 5 5 5 5 . . . 6 . 
+            . . . . . . . 5 5 5 . . . 6 5 . 
+            . . . . . . . . . . . . . . 6 . 
+            . . . . . . 6 6 6 6 6 . . . 5 6 
+            . . . . . 6 6 6 6 6 6 6 4 4 6 . 
+            . . . . . 6 6 6 6 6 . . . 6 5 . 
+            . . . . . 4 7 6 6 6 . . . . 5 . 
+            . . . . . 4 7 7 7 7 . . . . 5 . 
+            . . . . . . 7 7 . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . 5 . 5 . . . . . 
+            . . . . . . . 5 5 5 5 . . . 3 . 
+            . . . . . . 4 5 5 5 5 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . 4 4 3 
+            . . . . . . 4 5 5 5 5 . . . 6 . 
+            . . . . . . . 5 5 5 . . . 6 5 . 
+            . . . . . . . . . . . . . . 6 . 
+            . . . . . . 6 6 6 6 6 . . . 5 6 
+            . . . . . 6 6 6 6 6 6 6 4 4 6 . 
+            . . . . . 6 6 6 6 6 . . . 6 5 . 
+            . . . . . 4 7 6 6 6 . . . . 5 . 
+            . . . . . 4 7 7 7 7 . . . . 5 . 
+            . . . . . . 7 7 . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . 5 . 5 . . . . . 
+            . . . . . . . 5 5 5 5 . . . 3 . 
+            . . . . . . 4 5 5 5 5 . . 4 4 3 
+            . . . . . . 4 5 4 5 4 . . 4 4 3 
+            . . . . . . 4 5 5 5 5 . . . 6 . 
+            . . . . . . . 5 5 5 . . . 6 5 . 
+            . . . . . . . . . . . . . . 6 . 
+            . . . . . . 6 6 6 6 6 . . . 5 6 
+            . . . . . 6 6 6 6 6 6 6 4 4 6 . 
+            . . . . . 6 6 6 6 6 . . . 6 5 . 
+            . . . . . 4 7 6 6 6 . . . . 5 . 
+            . . . . . 4 7 7 . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            . . . . . . 7 . . 7 . . . . 5 . 
+            `], assets.tile`transparency16`)
         overlaytilewith(assets.tile`myTile74`, assets.tile`myTile74`)
         overlaytilewith(assets.tile`myTile75`, assets.tile`myTile75`)
         overlaytilewith(assets.tile`myTile77`, img`
@@ -8029,6 +8121,8 @@ browserEvents.V.onEvent(browserEvents.KeyEvent.Pressed, function () {
                 move_into_house(100, 2)
             } else if (mySprite.tilemapLocation().column == 39) {
                 move_into_house(100, 3)
+            } else if (mySprite.tilemapLocation().column == 55) {
+                move_into_house(100, 4)
             }
         }
     } else if (mySprite.tileKindAt(TileDirection.Center, assets.tile`myTile65`)) {
@@ -8039,6 +8133,8 @@ browserEvents.V.onEvent(browserEvents.KeyEvent.Pressed, function () {
                 move_into_house(2, 2)
             } else if (mySprite.tilemapLocation().column == 28) {
                 move_into_house(2, 3)
+            } else if (mySprite.tilemapLocation().column == 43) {
+                move_into_house(2, 5)
             }
         }
     } else if (mySprite.tileKindAt(TileDirection.Center, assets.tile`myTile13`)) {
