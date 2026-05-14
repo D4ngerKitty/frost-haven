@@ -276,6 +276,7 @@ events.spriteEvent(SpriteKind.aboss, SpriteKind.playerAttackHitboxType, events.S
         }
     } else {
         inbossfight = false
+        bosses_defeated.push(sprites.readDataNumber(sprite, "id"))
         sprites.destroy(sprite)
         sprites.destroy(bossname)
         sprites.destroy(statusbar)
@@ -294,19 +295,21 @@ events.spriteEvent(SpriteKind.aboss, SpriteKind.playerAttackHitboxType, events.S
 })
 function handle_walls_and_envorment_intractions () {
     if (zone == 201) {
-        if (mySprite.tilemapLocation().column == 11) {
-            if (!(wallsactive)) {
-                wallsactive = true
-                timer.background(function () {
-                    for (let value of sprites.allOfKind(SpriteKind.wall)) {
-                        wall_number += -1
-                        sprites.readDataSprite(wallcontrol, "" + wall_number + "wall").ay = 200
-                        pause(100)
-                    }
-                })
-                timer.background(function () {
-                    start_bossfight(1)
-                })
+        if (!(spriteutils.isDestroyed(wallcontrol))) {
+            if (mySprite.tilemapLocation().column == 11) {
+                if (!(wallsactive)) {
+                    wallsactive = true
+                    timer.background(function () {
+                        for (let value of sprites.allOfKind(SpriteKind.wall)) {
+                            wall_number += -1
+                            sprites.readDataSprite(wallcontrol, "" + wall_number + "wall").ay = 200
+                            pause(100)
+                        }
+                    })
+                    timer.background(function () {
+                        start_bossfight(1)
+                    })
+                }
             }
         }
     }
@@ -415,6 +418,28 @@ browserEvents.ArrowUp.onEvent(browserEvents.KeyEvent.Pressed, function () {
         }
     }
 })
+function load_save_data (save: boolean) {
+    if (save) {
+        blockSettings.writeNumber("checkpoint_zone_in_data", zone)
+        blockSettings.writeNumberArray("the invantory", theinvantorylist)
+        blockSettings.writeNumber("theAbutton", theAbutton)
+        blockSettings.writeNumber("thecloakslot", armer_slot)
+        blockSettings.writeNumber("theBbutton", theBbuttonitem)
+        blockSettings.writeNumber("talismanslot", thetalismanslotvar)
+        blockSettings.writeNumberArray("bosses_defected", bosses_defeated)
+    } else {
+        if (!(blockSettings.exists("paformacemode"))) {
+            blockSettings.writeNumber("paformacemode", 1)
+        }
+        if (!(blockSettings.exists("deathmarker"))) {
+            blockSettings.writeNumber("deathmarker", 1)
+        }
+        if (!(blockSettings.exists("bosses_defected"))) {
+            blockSettings.writeNumberArray("bosses_defected", [])
+        }
+        bosses_defeated = blockSettings.readNumberArray("bosses_defected")
+    }
+}
 function kill_player (text: string, text2: string) {
     let item = 0
     mySprite.setFlag(SpriteFlag.Invisible, true)
@@ -3789,52 +3814,57 @@ function createlevel (num: number) {
     } else if (num == 201) {
         snow_onoff = false
         tiles.setCurrentTilemap(tilemap`level8`)
-        wallcontrol = sprites.create(img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `, SpriteKind.background)
-        wall_number = 0
-        createBoss(assets.tile`myTile86`, 1)
-        for (let value of tiles.getTilesByType(assets.tile`myTile85`)) {
-            sprites.setDataSprite(wallcontrol, "" + wall_number + "wall", sprites.create(img`
-                7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
-                7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
-                7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
-                7 7 7 7 8 8 8 8 8 8 8 8 7 7 7 7 
-                7 8 8 8 8 7 7 7 7 7 7 8 8 8 8 7 
-                7 8 8 8 7 7 7 7 7 7 7 7 8 8 8 7 
-                7 7 7 8 7 8 8 7 7 8 8 7 8 7 7 7 
-                7 8 8 8 7 8 8 7 7 8 8 7 8 8 8 7 
-                7 8 8 8 7 8 7 7 7 7 8 7 8 8 8 7 
-                7 7 7 8 7 7 7 7 7 7 7 7 8 7 7 7 
-                7 8 8 8 8 7 7 7 7 7 7 8 8 8 8 7 
-                7 8 8 8 8 7 8 7 7 8 7 8 8 8 8 7 
-                7 7 7 7 8 8 8 8 8 8 8 8 7 7 7 7 
-                7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
-                7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
-                7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
-                `, SpriteKind.wall))
-            sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "damge", 0)
-            sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "id", 2)
-            tiles.placeOnTile(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), value)
-            wall_number += 1
-            tiles.setTileAt(value, assets.tile`myTile3`)
+        if (!(checkfor("boss_def", 1))) {
+            wallcontrol = sprites.create(img`
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `, SpriteKind.background)
+            wall_number = 0
+            createBoss(assets.tile`myTile86`, 1)
+            for (let value of tiles.getTilesByType(assets.tile`myTile85`)) {
+                sprites.setDataSprite(wallcontrol, "" + wall_number + "wall", sprites.create(img`
+                    7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+                    7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
+                    7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
+                    7 7 7 7 8 8 8 8 8 8 8 8 7 7 7 7 
+                    7 8 8 8 8 7 7 7 7 7 7 8 8 8 8 7 
+                    7 8 8 8 7 7 7 7 7 7 7 7 8 8 8 7 
+                    7 7 7 8 7 8 8 7 7 8 8 7 8 7 7 7 
+                    7 8 8 8 7 8 8 7 7 8 8 7 8 8 8 7 
+                    7 8 8 8 7 8 7 7 7 7 8 7 8 8 8 7 
+                    7 7 7 8 7 7 7 7 7 7 7 7 8 7 7 7 
+                    7 8 8 8 8 7 7 7 7 7 7 8 8 8 8 7 
+                    7 8 8 8 8 7 8 7 7 8 7 8 8 8 8 7 
+                    7 7 7 7 8 8 8 8 8 8 8 8 7 7 7 7 
+                    7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
+                    7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 7 
+                    7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 
+                    `, SpriteKind.wall))
+                sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "damge", 0)
+                sprites.setDataNumber(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), "id", 2)
+                tiles.placeOnTile(sprites.readDataSprite(wallcontrol, "" + wall_number + "wall"), value)
+                wall_number += 1
+                tiles.setTileAt(value, assets.tile`myTile3`)
+            }
+        } else {
+            tileUtil.setWalls(assets.tile`myTile84`, false)
+            tileUtil.replaceAllTiles(assets.tile`myTile84`, assets.tile`transparency16`)
+            tileUtil.replaceAllTiles(assets.tile`myTile85`, assets.tile`myTile3`)
         }
-        item_can_pick_up(assets.tile`myTile22`, 5, assets.tile`myTile81`)
     }
     if (false) {
         for (let value of tiles.getTilesByType(assets.tile`myTile16`)) {
@@ -8700,23 +8730,8 @@ function START_CUTSENSE () {
     incutesence = false
 }
 function item_can_pick_up (myImage: Image, num: number, myImage2: Image) {
-    Items_picked_Up = true
-    for (let value of theinvantorylist) {
-        if (value == num) {
-            Items_picked_Up = false
-        }
-    }
-    if (theBbuttonitem == num) {
-        Items_picked_Up = false
-    } else if (thetalismanslotvar == num) {
-        Items_picked_Up = false
-    } else if (theAbutton == num) {
-        Items_picked_Up = false
-    } else if (armer_slot == num) {
-        Items_picked_Up = false
-    }
     for (let value of tiles.getTilesByType(myImage2)) {
-        if (Items_picked_Up) {
+        if (!(checkfor("Has_item", num))) {
             mySprite6 = sprites.create(img`
                 . . . . . . . . . . . . . . . . 
                 . . . . . . . . . . . . . . . . 
@@ -9120,6 +9135,33 @@ events.spriteEvent(SpriteKind.Enemy, SpriteKind.playerAttackHitboxType, events.S
         }
     }
 })
+function checkfor (thing: string, number: number) {
+    if (thing == "boss_def") {
+        check = false
+        for (let value of bosses_defeated) {
+            if (value == number) {
+                check = true
+            }
+        }
+    } else if (thing == "Has_item") {
+        check = false
+        for (let value of theinvantorylist) {
+            if (value == number) {
+                check = true
+            }
+        }
+        if (theBbuttonitem == number) {
+            check = true
+        } else if (thetalismanslotvar == number) {
+            check = true
+        } else if (theAbutton == number) {
+            check = true
+        } else if (armer_slot == number) {
+            check = true
+        }
+    }
+    return check
+}
 function create_invantory () {
     invantory = sprites.create(assests[0].clone(), SpriteKind.ivantorybit)
     invantory.z = 100
@@ -9167,9 +9209,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.acam, function (sprite, otherSpr
 let selected_item = 0
 let selceontype = ""
 let camlocked_untilplayer_overlap = false
+let check = false
 let camnotmoveonY = false
 let mySprite6: Sprite = null
-let Items_picked_Up = false
 let aNPC: Sprite = null
 let path: TilemapPath.TilemapPath = null
 let items_names: string[] = []
@@ -9192,15 +9234,10 @@ let melleattackslist: Image[][] = []
 let sword_compo = 0
 let duraction_facing_left_or_right = 0
 let attack_hitbox: Sprite = null
-let armer_slot = 0
-let thetalismanslotvar = 0
-let theBbuttonitem = 0
-let theAbutton = 0
 let Invantory_Y: number[] = []
 let invantory_X: number[] = []
 let item_type: string[] = []
 let number = 0
-let theinvantorylist: number[] = []
 let maxPLayerLife = 0
 let playerlife = 0
 let items_images: Image[] = []
@@ -9209,12 +9246,18 @@ let NPCtext: fancyText.TextSprite = null
 let incutesence = false
 let thelifesprtie: Sprite = null
 let mySprite3: Sprite = null
+let thetalismanslotvar = 0
+let theBbuttonitem = 0
+let armer_slot = 0
+let theAbutton = 0
+let theinvantorylist: number[] = []
 let main_menu_text: fancyText.TextSprite = null
 let mainstartmenu = false
-let wallcontrol: Sprite = null
 let wall_number = 0
 let wallsactive = false
+let wallcontrol: Sprite = null
 let zone = 0
+let bosses_defeated: number[] = []
 let partical_location: number[] = []
 let dashes = 0
 let mySprite: Sprite = null
@@ -9241,12 +9284,7 @@ color.setColor(9, color.parseColorString("#180920"))
 scene.setBackgroundColor(9)
 lockcontrols = false
 camFallowPlayer = false
-if (!(blockSettings.exists("paformacemode"))) {
-    blockSettings.writeNumber("paformacemode", 1)
-}
-if (!(blockSettings.exists("deathmarker"))) {
-    blockSettings.writeNumber("deathmarker", 1)
-}
+load_save_data(false)
 stats.turnStats(true)
 can_open_menu = false
 menu_open = true
@@ -10481,12 +10519,7 @@ forever(function () {
 forever(function () {
     for (let value of sprites.allOfKind(SpriteKind.savepoint)) {
         if (mySprite.tileKindAt(TileDirection.Center, assets.tile`myTile46`)) {
-            blockSettings.writeNumber("checkpoint_zone_in_data", zone)
-            blockSettings.writeNumberArray("the invantory", theinvantorylist)
-            blockSettings.writeNumber("theAbutton", theAbutton)
-            blockSettings.writeNumber("thecloakslot", armer_slot)
-            blockSettings.writeNumber("theBbutton", theBbuttonitem)
-            blockSettings.writeNumber("talismanslot", thetalismanslotvar)
+            load_save_data(true)
             playerlife = maxPLayerLife
             value.sayText("saving")
             animation.runImageAnimation(
