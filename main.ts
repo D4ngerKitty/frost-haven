@@ -403,6 +403,19 @@ function create_damge_wall (volY: number, Vol_X: number, gravaty: number, spawn:
     }
 }
 browserEvents.ArrowUp.onEvent(browserEvents.KeyEvent.Pressed, function () {
+    if (!(spriteutils.isDestroyed(picker))) {
+        if (yesno) {
+            picker.y = no.y
+            yesno = false
+            fancyText.setColor(no, 3)
+            fancyText.setColor(yes, 4)
+        } else {
+            picker.y = yes.y
+            yesno = true
+            fancyText.setColor(yes, 3)
+            fancyText.setColor(no, 4)
+        }
+    }
     if (!(menu_open)) {
         move_selector(-4, "up")
     }
@@ -418,6 +431,195 @@ browserEvents.ArrowUp.onEvent(browserEvents.KeyEvent.Pressed, function () {
         }
     }
 })
+function yes_or_no_queston (text: string) {
+    can_open_menu = false
+    platformer.moveSprite(mySprite, false, 90)
+    canrun = false
+    NPCtext = fancyText.create(text, 150, 3, customFont.RegularBlock_4_by_Luke)
+    fancyText.setTextFlag(NPCtext, fancyText.Flag.AlwaysOccupyMaxWidth, true)
+    fancyText.setTextFlag(NPCtext, fancyText.Flag.ChangeHeightWhileAnimating, false)
+    fancyText.setAnimationSound(NPCtext, music.createSoundEffect(WaveShape.Noise, 3097, 0, 255, 28, 100, SoundExpressionEffect.None, InterpolationCurve.Logarithmic))
+    fancyText.setFrame(NPCtext, img`
+        .6666666666666666666666.
+        667777777777777777777766
+        677666666666666666666776
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        676666666666666666666676
+        677666666666666666666776
+        667777777777777777777766
+        .6666666666666666666666.
+        `)
+    NPCtext.setFlag(SpriteFlag.RelativeToCamera, true)
+    NPCtext.z = 10000
+    NPCtext.setPosition(80, 20)
+    fancyText.animateAtSpeed(NPCtext, fancyText.TextSpeed.Fast, fancyText.AnimationPlayMode.UntilDone)
+    yes = fancyText.create("Yes", 40, 3, fancyText.rounded_large)
+    yes.setFlag(SpriteFlag.RelativeToCamera, true)
+    no = fancyText.create("No", 40, 4, fancyText.rounded_large)
+    yesno = true
+    no.setFlag(SpriteFlag.RelativeToCamera, true)
+    no.y += 32
+    yes.y += 0
+    yes.x = 80
+    no.x = 80
+    yes.z = 100
+    no.z = 100
+    picker = sprites.create(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . 5 5 . . . . . . . 
+        . . . . . . 5 4 4 5 . . . . . . 
+        . . . . . 5 4 4 4 4 5 . . . . . 
+        . . . . . 5 4 4 4 4 4 5 . . . . 
+        . . . . . 5 4 4 4 4 4 4 5 . . . 
+        . . . . . 5 4 4 4 4 4 4 4 5 . . 
+        . . . . . 5 4 4 4 4 4 4 4 4 5 . 
+        . . . . . 5 4 4 4 4 4 4 4 4 5 . 
+        . . . . . 5 4 4 4 4 4 4 4 5 . . 
+        . . . . . 5 4 4 4 4 4 4 5 . . . 
+        . . . . . 5 4 4 4 4 4 5 . . . . 
+        . . . . . 5 4 4 4 4 5 . . . . . 
+        . . . . . . 5 4 4 5 . . . . . . 
+        . . . . . . . 5 5 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, SpriteKind.background)
+    animation.runImageAnimation(
+    picker,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . 4 4 . . . . . . . . 
+        . . . . . 4 3 3 4 . . . . . . . 
+        . . . . 4 3 3 3 3 4 . . . . . . 
+        . . . . 4 3 3 3 3 3 4 . . . . . 
+        . . . . 4 3 3 3 3 3 3 4 . . . . 
+        . . . . 4 3 3 3 3 3 3 3 4 . . . 
+        . . . . 4 3 3 3 3 3 3 3 3 4 . . 
+        . . . . 4 3 3 3 3 3 3 3 3 4 . . 
+        . . . . 4 3 3 3 3 3 3 3 4 . . . 
+        . . . . 4 3 3 3 3 3 3 4 . . . . 
+        . . . . 4 3 3 3 3 3 4 . . . . . 
+        . . . . 4 3 3 3 3 4 . . . . . . 
+        . . . . . 4 3 3 4 . . . . . . . 
+        . . . . . . 4 4 . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . 4 4 . . . . . . . 
+        . . . . . . 4 3 3 4 . . . . . . 
+        . . . . . 4 3 3 3 3 4 . . . . . 
+        . . . . . 4 3 3 3 3 3 4 . . . . 
+        . . . . . 4 3 3 3 3 3 3 4 . . . 
+        . . . . . 4 3 3 3 3 3 3 3 4 . . 
+        . . . . . 4 3 3 3 3 3 3 3 3 4 . 
+        . . . . . 4 3 3 3 3 3 3 3 3 4 . 
+        . . . . . 4 3 3 3 3 3 3 3 4 . . 
+        . . . . . 4 3 3 3 3 3 3 4 . . . 
+        . . . . . 4 3 3 3 3 3 4 . . . . 
+        . . . . . 4 3 3 3 3 4 . . . . . 
+        . . . . . . 4 3 3 4 . . . . . . 
+        . . . . . . . 4 4 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . 4 4 . . . . . . 
+        . . . . . . . 4 3 3 4 . . . . . 
+        . . . . . . 4 3 3 3 3 4 . . . . 
+        . . . . . . 4 3 3 3 3 3 4 . . . 
+        . . . . . . 4 3 3 3 3 3 3 4 . . 
+        . . . . . . 4 3 3 3 3 3 3 3 4 . 
+        . . . . . . 4 3 3 3 3 3 3 3 3 4 
+        . . . . . . 4 3 3 3 3 3 3 3 3 4 
+        . . . . . . 4 3 3 3 3 3 3 3 4 . 
+        . . . . . . 4 3 3 3 3 3 3 4 . . 
+        . . . . . . 4 3 3 3 3 3 4 . . . 
+        . . . . . . 4 3 3 3 3 4 . . . . 
+        . . . . . . . 4 3 3 4 . . . . . 
+        . . . . . . . . 4 4 . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . 4 4 . . . . . . . 
+        . . . . . . 4 3 3 4 . . . . . . 
+        . . . . . 4 3 3 3 3 4 . . . . . 
+        . . . . . 4 3 3 3 3 3 4 . . . . 
+        . . . . . 4 3 3 3 3 3 3 4 . . . 
+        . . . . . 4 3 3 3 3 3 3 3 4 . . 
+        . . . . . 4 3 3 3 3 3 3 3 3 4 . 
+        . . . . . 4 3 3 3 3 3 3 3 3 4 . 
+        . . . . . 4 3 3 3 3 3 3 3 4 . . 
+        . . . . . 4 3 3 3 3 3 3 4 . . . 
+        . . . . . 4 3 3 3 3 3 4 . . . . 
+        . . . . . 4 3 3 3 3 4 . . . . . 
+        . . . . . . 4 3 3 4 . . . . . . 
+        . . . . . . . 4 4 . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . 4 4 . . . . . . . . 
+        . . . . . 4 3 3 4 . . . . . . . 
+        . . . . 4 3 3 3 3 4 . . . . . . 
+        . . . . 4 3 3 3 3 3 4 . . . . . 
+        . . . . 4 3 3 3 3 3 3 4 . . . . 
+        . . . . 4 3 3 3 3 3 3 3 4 . . . 
+        . . . . 4 3 3 3 3 3 3 3 3 4 . . 
+        . . . . 4 3 3 3 3 3 3 3 3 4 . . 
+        . . . . 4 3 3 3 3 3 3 3 4 . . . 
+        . . . . 4 3 3 3 3 3 3 4 . . . . 
+        . . . . 4 3 3 3 3 3 4 . . . . . 
+        . . . . 4 3 3 3 3 4 . . . . . . 
+        . . . . . 4 3 3 4 . . . . . . . 
+        . . . . . . 4 4 . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . 4 4 . . . . . . . . . 
+        . . . . 4 3 3 4 . . . . . . . . 
+        . . . 4 3 3 3 3 4 . . . . . . . 
+        . . . 4 3 3 3 3 3 4 . . . . . . 
+        . . . 4 3 3 3 3 3 3 4 . . . . . 
+        . . . 4 3 3 3 3 3 3 3 4 . . . . 
+        . . . 4 3 3 3 3 3 3 3 3 4 . . . 
+        . . . 4 3 3 3 3 3 3 3 3 4 . . . 
+        . . . 4 3 3 3 3 3 3 3 4 . . . . 
+        . . . 4 3 3 3 3 3 3 4 . . . . . 
+        . . . 4 3 3 3 3 3 4 . . . . . . 
+        . . . 4 3 3 3 3 4 . . . . . . . 
+        . . . . 4 3 3 4 . . . . . . . . 
+        . . . . . 4 4 . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `],
+    100,
+    true
+    )
+    picker.z = 100
+    picker.x = 50
+    picker.y += 0
+    picker.setFlag(SpriteFlag.RelativeToCamera, true)
+    pauseUntil(() => browserEvents.Z.isPressed())
+    sprites.destroy(NPCtext)
+    sprites.destroy(no)
+    sprites.destroy(yes)
+    sprites.destroy(picker)
+    platformer.moveSprite(mySprite, true, 90)
+    can_open_menu = true
+    canrun = true
+    return yesno
+}
 function load_save_data (save: boolean) {
     if (save) {
         blockSettings.writeNumber("checkpoint_zone_in_data", zone)
@@ -644,7 +846,7 @@ function MakeNPCText (text: string) {
     NPCtext.z = 10000
     NPCtext.setPosition(80, 20)
     fancyText.animateAtSpeed(NPCtext, fancyText.TextSpeed.Fast, fancyText.AnimationPlayMode.UntilDone)
-    pauseUntil(() => controller.A.isPressed())
+    pauseUntil(() => browserEvents.Z.isPressed())
     sprites.destroy(NPCtext)
     platformer.moveSprite(mySprite, true, 90)
     can_open_menu = true
@@ -776,12 +978,41 @@ function handle_npc_intractions () {
                         MakeNPCText("Even you, young one")
                     }
                 } else if (sprites.readDataNumber(value, "NPCID") == 5) {
-                    MakeNPCText("Hello young one")
-                    MakeNPCText("I lost my sword the other day going down to the caves ")
-                    MakeNPCText("Luckily, I was given a new one but it isn't as good :(")
+                    if (checkfor("Has_item", 9)) {
+                        MakeNPCText("Thank you so much young one")
+                    } else {
+                        MakeNPCText("Hello young one")
+                        MakeNPCText("I lost my sword the other day going down to the caves ")
+                        MakeNPCText("Luckily, I was given a new one but it isn't as good :(")
+                        if (checkfor("Has_item", 1)) {
+                            if (yes_or_no_queston("Give him back his sword?")) {
+                                checkfor("Remove_item", 1)
+                                MakeNPCText("thank you so much!")
+                                MakeNPCText("I thought i would never see this again")
+                                MakeNPCText("Here take this as a reword")
+                                MakeNPCText("You got a item check your invantory")
+                                checkfor("give Item", 9)
+                            }
+                        }
+                    }
                 } else if (sprites.readDataNumber(value, "NPCID") == 4) {
                     MakeNPCText("Heyo")
-                    MakeNPCText("If you help me I'll give you something special ")
+                    if (checkfor("boss_def", 1)) {
+                        MakeNPCText("Thanks for killing that big bug for us")
+                        MakeNPCText("Here you go")
+                        MakeNPCText("You got a item check your invantory")
+                        checkfor("give Item", 5)
+                        MakeNPCText("once you equip the item you can dash using X while in the air")
+                    } else {
+                        MakeNPCText("If you help me I'll give you something special ")
+                        if (yes_or_no_queston("help him?")) {
+                            MakeNPCText("Thank you, so down in the caves there is a big bug ")
+                            MakeNPCText("it has been causing this town trouble alot lately")
+                            MakeNPCText("if you defeat him i'll give you a item")
+                        } else {
+                            MakeNPCText("To bad, come again later if your ever intrested")
+                        }
+                    }
                 } else if (sprites.readDataNumber(value, "NPCID") == 3) {
                     MakeNPCText("Hello!")
                     MakeNPCText("Its rare to see a titan around here! We never see your kind about.")
@@ -3865,6 +4096,8 @@ function createlevel (num: number) {
             tileUtil.replaceAllTiles(assets.tile`myTile84`, assets.tile`transparency16`)
             tileUtil.replaceAllTiles(assets.tile`myTile85`, assets.tile`myTile3`)
         }
+    } else if (num == 3) {
+        tiles.setCurrentTilemap(tilemap`level10`)
     }
     if (false) {
         for (let value of tiles.getTilesByType(assets.tile`myTile16`)) {
@@ -4601,6 +4834,19 @@ function dash (howfar: number, durection: number) {
     }
 }
 browserEvents.ArrowDown.onEvent(browserEvents.KeyEvent.Pressed, function () {
+    if (!(spriteutils.isDestroyed(picker))) {
+        if (yesno) {
+            picker.y = no.y
+            yesno = false
+            fancyText.setColor(no, 3)
+            fancyText.setColor(yes, 4)
+        } else {
+            picker.y = yes.y
+            yesno = true
+            fancyText.setColor(yes, 3)
+            fancyText.setColor(no, 4)
+        }
+    }
     if (!(menu_open)) {
         move_selector(4, "down")
     }
@@ -8931,6 +9177,10 @@ function moveBeteewnleveles () {
             camnotmoveonY = true
             tiles.placeOnTile(cam, tiles.getTileLocation(21, 14))
         }
+        if (mySprite.tilemapLocation().column == 69 && mySprite.isHittingTile(CollisionDirection.Right)) {
+            createlevel(3)
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(0, 13))
+        }
     }
     if (zone == 200) {
         if (mySprite.tilemapLocation().column == 59 && mySprite.isHittingTile(CollisionDirection.Right)) {
@@ -8942,6 +9192,19 @@ function moveBeteewnleveles () {
         if (mySprite.tilemapLocation().column == 0 && mySprite.isHittingTile(CollisionDirection.Left)) {
             createlevel(200)
             tiles.placeOnTile(mySprite, tiles.getTileLocation(59, 15))
+        }
+        if (mySprite.tilemapLocation().column == 39 && mySprite.isHittingTile(CollisionDirection.Right)) {
+            createlevel(3)
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(0, 34))
+        }
+    }
+    if (zone == 3) {
+        if (mySprite.tilemapLocation().column == 0 && mySprite.tilemapLocation().row > 20 && mySprite.isHittingTile(CollisionDirection.Left)) {
+            createlevel(201)
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(39, 14))
+        } else if (mySprite.tilemapLocation().column == 0 && mySprite.tilemapLocation().row < 15 && mySprite.isHittingTile(CollisionDirection.Left)) {
+            createlevel(2)
+            tiles.placeOnTile(mySprite, tiles.getTileLocation(69, 19))
         }
     }
 }
@@ -9159,6 +9422,35 @@ function checkfor (thing: string, number: number) {
         } else if (armer_slot == number) {
             check = true
         }
+    } else if (thing == "Remove_item") {
+        for (let value of theinvantorylist) {
+            if (value == number) {
+                theinvantorylist[theinvantorylist.indexOf(value)] = -1
+                sprites.setDataNumber(invantory, "" + theinvantorylist.indexOf(value) + "item_id", -1)
+            }
+        }
+        if (theBbuttonitem == number) {
+            theBbuttonitem = -1
+            sprites.setDataNumber(invantory, "Bbottonslot_id", -1)
+        } else if (thetalismanslotvar == number) {
+            thetalismanslotvar = -1
+            sprites.setDataNumber(invantory, "talismen_id", -1)
+        } else if (theAbutton == number) {
+            theAbutton = -1
+            sprites.setDataNumber(invantory, "sword slot_id", -1)
+        } else if (armer_slot == number) {
+            armer_slot = -1
+            sprites.setDataNumber(invantory, "cloakslot_id", -1)
+        }
+        Refresh_invantory()
+    } else if (thing == "give Item") {
+        for (let index = 0; index <= 15; index++) {
+            if (theinvantorylist[index] == -1) {
+                theinvantorylist[index] = number
+                break;
+            }
+        }
+        Refresh_invantory()
     }
     return check
 }
@@ -9208,6 +9500,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.acam, function (sprite, otherSpr
 })
 let selected_item = 0
 let selceontype = ""
+let myEffect2: SpreadEffectData = null
 let camlocked_untilplayer_overlap = false
 let check = false
 let camnotmoveonY = false
@@ -9242,7 +9535,6 @@ let maxPLayerLife = 0
 let playerlife = 0
 let items_images: Image[] = []
 let invantory: Sprite = null
-let NPCtext: fancyText.TextSprite = null
 let incutesence = false
 let thelifesprtie: Sprite = null
 let mySprite3: Sprite = null
@@ -9251,8 +9543,13 @@ let theBbuttonitem = 0
 let armer_slot = 0
 let theAbutton = 0
 let theinvantorylist: number[] = []
+let NPCtext: fancyText.TextSprite = null
 let main_menu_text: fancyText.TextSprite = null
 let mainstartmenu = false
+let yes: fancyText.TextSprite = null
+let no: fancyText.TextSprite = null
+let yesno = false
+let picker: Sprite = null
 let wall_number = 0
 let wallsactive = false
 let wallcontrol: Sprite = null
@@ -9856,8 +10153,8 @@ forever(function () {
                 if (!(sprites.readDataBoolean(thebossSprite, "attacking cycal"))) {
                     sprites.setDataBoolean(thebossSprite, "attacking cycal", true)
                     sprites.setDataNumber(thebossSprite, "random_number", 2)
-                    if (statusbar.value < 35) {
-                        pause(1000)
+                    if (statusbar.value < 25) {
+                        pause(randint(500, 1000))
                     } else {
                         pause(randint(1000, 2000))
                     }
@@ -10073,7 +10370,7 @@ forever(function () {
                                 . . 7 7 7 7 7 7 7 7 7 7 7 4 3 . 
                                 `, "boss_1_bug_1")
                         }
-                        pause(400)
+                        pause(500)
                     } else {
                         animation.runImageAnimation(
                         thebossSprite,
@@ -10143,6 +10440,171 @@ forever(function () {
                             .7777777777777777777777773444443
                             ...7777777777777777777777344433.
                             ....7777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
+                            `,img`
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ................................
+                            ..................7.7......3333.
+                            ...........77....7777.....33343.
+                            ....777...7777...777733..333443.
+                            ...777777777777..777743.3334443.
+                            ....777777777777.77774333344443.
+                            .....77777777777777744334444443.
+                            ......7777777777777744444444443.
+                            ....333477777777777734444444433.
+                            .3334444477777777777344344433...
+                            334444443777777777773443343377..
+                            34444444377667777777334433377777
+                            3334444337666677667773444377777.
+                            .3333337776666766667733777773...
+                            .....73777666676666773777774433.
+                            ..777777777667776677777777344443
+                            .7777777777777777777777773444444
+                            77777777777777777777777773444333
+                            ..777777777777777777777777333...
                             `,img`
                             ................................
                             ................................
@@ -10378,7 +10840,25 @@ forever(function () {
                         100,
                         false
                         )
-                        pause(500)
+                        if (blockSettings.readNumber("paformacemode") == 1) {
+                            myEffect2 = extraEffects.createCustomSpreadEffectData(
+                            [5, 6],
+                            false,
+                            extraEffects.createPresetSizeTable(ExtraEffectPresetShape.Cloud),
+                            extraEffects.createPercentageRange(50, 100),
+                            extraEffects.createPercentageRange(50, 100),
+                            extraEffects.createTimeRange(500, 1000),
+                            0,
+                            -100,
+                            extraEffects.createPercentageRange(50, 100),
+                            0,
+                            0,
+                            200
+                            )
+                            myEffect2.z = -1
+                            extraEffects.createSpreadEffectOnAnchor(thebossSprite, myEffect2, 1000, 32, 32)
+                        }
+                        pause(1000)
                         thebossSprite.vy = -100
                         pause(100)
                         while (!(thebossSprite.isHittingTile(CollisionDirection.Bottom))) {
@@ -10501,9 +10981,9 @@ forever(function () {
                             create_damge_wall(-170, -50, 200, tiles.getTileLocation(17, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
                             create_damge_wall(-170, 50, 200, tiles.getTileLocation(19, 17), -1, true, 3000, assets.tile`myTile7`, 1, -3)
                             if (statusbar.value < 35) {
-                                pause(500)
+                                pause(1000)
                             } else {
-                                pause(500)
+                                pause(1200)
                             }
                         }
                     }
