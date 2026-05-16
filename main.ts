@@ -11,6 +11,7 @@ namespace SpriteKind {
     export const item = SpriteKind.create()
     export const wall = SpriteKind.create()
     export const aboss = SpriteKind.create()
+    export const spike = SpriteKind.create()
 }
 function start_bossfight (num: number) {
     inbossfight = true
@@ -216,6 +217,9 @@ browserEvents.X.onEvent(browserEvents.KeyEvent.Pressed, function () {
                 }
             })
         }
+    }
+    if (!(spriteutils.isDestroyed(NPCtext))) {
+        fancyText.cancelAnimation(NPCtext)
     }
 })
 function createBoss (myImage: Image, num: number) {
@@ -796,11 +800,6 @@ function move_into_house (num: number, which_house: number) {
         }
     }
 }
-controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (incutesence) {
-        fancyText.cancelAnimation(NPCtext)
-    }
-})
 browserEvents.E.onEvent(browserEvents.KeyEvent.Pressed, function () {
     pull_up_invantory()
 })
@@ -930,6 +929,29 @@ function create_ui () {
     thelifesprtie.setPosition(16, 29)
     thelifesprtie.z = 120
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile95`, function (sprite, location) {
+    if (!(spriteutils.isDestroyed(The_spike_sprtie_hitbox))) {
+        The_spike_sprtie_hitbox.setImage(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . 1 . . . . . 1 . . . . . 
+            . . . 1 1 1 . . . 1 1 1 . . . . 
+            . . . 1 1 1 . . . 1 1 1 . . . . 
+            . . 1 1 1 1 1 . 1 1 1 1 1 . . . 
+            . . 1 1 1 1 1 . 1 1 1 1 1 . . . 
+            . 1 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+            . 1 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            `)
+        tiles.placeOnTile(The_spike_sprtie_hitbox, location)
+    }
+})
 controller.menu.onEvent(ControllerButtonEvent.Pressed, function () {
     pull_up_invantory()
 })
@@ -974,7 +996,7 @@ function handle_npc_intractions () {
                         MakeNPCText("You can't see as much as me")
                     } else {
                         MakeNPCText("I see all")
-                        MakeNPCText("Eveyrthing")
+                        MakeNPCText("Everything")
                         MakeNPCText("Even you, young one")
                     }
                 } else if (sprites.readDataNumber(value, "NPCID") == 5) {
@@ -990,7 +1012,7 @@ function handle_npc_intractions () {
                                 MakeNPCText("thank you so much!")
                                 MakeNPCText("I thought i would never see this again")
                                 MakeNPCText("Here take this as a reword")
-                                MakeNPCText("You got a item check your invantory")
+                                MakeNPCText("You got a item check your inventory")
                                 checkfor("give Item", 9)
                             }
                         }
@@ -998,11 +1020,15 @@ function handle_npc_intractions () {
                 } else if (sprites.readDataNumber(value, "NPCID") == 4) {
                     MakeNPCText("Heyo")
                     if (checkfor("boss_def", 1)) {
-                        MakeNPCText("Thanks for killing that big bug for us")
-                        MakeNPCText("Here you go")
-                        MakeNPCText("You got a item check your invantory")
-                        checkfor("give Item", 5)
-                        MakeNPCText("once you equip the item you can dash using X while in the air")
+                        if (!(checkfor("Has_item", 5))) {
+                            MakeNPCText("Thanks for killing that big bug for us")
+                            MakeNPCText("Here you go")
+                            MakeNPCText("You got a item check your inventory")
+                            checkfor("give Item", 5)
+                            MakeNPCText("once you equip the item you can dash using X while in the air")
+                        } else {
+                            MakeNPCText("THank you so much!")
+                        }
                     } else {
                         MakeNPCText("If you help me I'll give you something special ")
                         if (yes_or_no_queston("help him?")) {
@@ -1034,7 +1060,7 @@ function handle_npc_intractions () {
         value.sayText("V", 100, false)
         if (browserEvents.V.isPressed()) {
             value.sayText("")
-            MakeNPCText("You got a item check your invantory")
+            MakeNPCText("You got a item check your inventory")
             for (let index = 0; index <= 15; index++) {
                 if (theinvantorylist[index] == -1) {
                     theinvantorylist[index] = sprites.readDataNumber(value, "what_item_it_it_is")
@@ -1130,6 +1156,10 @@ function Refresh_invantory () {
         . 3 3 3 3 3 3 . . 3 3 3 3 3 3 . 
         `, invantory.image, invantory_X[sprites.readDataNumber(invantory, "selection")], Invantory_Y[sprites.readDataNumber(invantory, "selection")])
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.spike, function (sprite, otherSprite) {
+    kill_player("you died to a spike", "Womp womp")
+    sprites.destroy(otherSprite)
+})
 browserEvents.C.onEvent(browserEvents.KeyEvent.Pressed, function () {
     if (!(lockcontrols && (incutesence && mainstartmenu))) {
         if (!(inattack)) {
@@ -1175,7 +1205,7 @@ browserEvents.C.onEvent(browserEvents.KeyEvent.Pressed, function () {
                     }
                 }
                 timer.background(function () {
-                    for (let index = 0; index < attacksflipped[0].length - 3; index++) {
+                    for (let index = 0; index < attacksflipped[0].length - 4; index++) {
                         pause(50)
                     }
                     inattack = false
@@ -1221,7 +1251,7 @@ browserEvents.C.onEvent(browserEvents.KeyEvent.Pressed, function () {
                     }
                 }
                 timer.background(function () {
-                    for (let index = 0; index < attacksflipped[2].length - 2; index++) {
+                    for (let index = 0; index < attacksflipped[2].length - 3; index++) {
                         pause(50)
                     }
                     inattack = false
@@ -4031,7 +4061,7 @@ function createlevel (num: number) {
             . . . . . 8 . . 8 . . . . . . . 
             . . . . . 8 . . 8 . . . . . . . 
             `], assets.tile`myTile26`)
-        if (false) {
+        if (true) {
             item_can_pick_up(assets.tile`myTile5`, 1, assets.tile`myTile80`)
             item_can_pick_up(assets.tile`myTile5`, 5, assets.tile`myTile81`)
             item_can_pick_up(assets.tile`myTile5`, 7, assets.tile`myTile82`)
@@ -4098,6 +4128,161 @@ function createlevel (num: number) {
         }
     } else if (num == 3) {
         tiles.setCurrentTilemap(tilemap`level10`)
+        makeNpc(10, assets.tile`myTile12`, [img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 4 4 6 4 . . . . . 
+            . . . . . . 6 8 8 6 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . . 8 . 8 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            . . . . . . 8 . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . 8 . . 8 8 . . . . . . 
+            . . . . . 8 . . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . . 8 8 8 8 4 . . . . . 
+            . . . . . 8 . . 8 8 . . . . . . 
+            . . . . . 8 . . . 8 . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . 5 . 5 . . . . . . . . 
+            . . . . . 5 5 5 5 . . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . 4 5 4 5 4 . . . . . . 
+            . . . . . 5 5 5 5 4 . . . . . . 
+            . . . . . . 5 5 5 . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 6 6 6 6 . . . . . . 
+            . . . . . 6 6 6 6 6 6 . . . . . 
+            . . . . . 6 6 4 4 6 6 . . . . . 
+            . . . . . . 6 6 8 6 4 . . . . . 
+            . . . . . 8 8 8 8 8 4 . . . . . 
+            . . . . . 8 . . 8 8 . . . . . . 
+            . . . . . 8 . . . 8 . . . . . . 
+            `], assets.tile`myTile26`)
+        summon_enemy(assets.tile`myTile5`, "bug_1")
     }
     if (false) {
         for (let value of tiles.getTilesByType(assets.tile`myTile16`)) {
@@ -5848,10 +6033,11 @@ function createplayer () {
     platformer.setCharacterAnimationsEnabled(mySprite, true)
     platformer.setConstantDefault(platformer.PlatformerConstant.InAirJumpHeight, 40)
     platformer.setConstantDefault(platformer.PlatformerConstant.WallFriction, 200)
-    platformer.setConstantDefault(platformer.PlatformerConstant.WallMinVelocity, 10)
+    platformer.setConstantDefault(platformer.PlatformerConstant.WallMinVelocity, 1)
     platformer.setConstantDefault(platformer.PlatformerConstant.WallJumpKickoffVelocity, 150)
+    platformer.setConstantDefault(platformer.PlatformerConstant.WallJumpHeight, 40)
     if (true) {
-        platformer.setFeatureEnabled(platformer.PlatformerFeatures.WallJumps, false)
+        platformer.setFeatureEnabled(platformer.PlatformerFeatures.WallJumps, true)
         platformer.setConstantDefault(platformer.PlatformerConstant.InAirJumps, 0)
     }
     platformer.setGravity(500)
@@ -8846,6 +9032,29 @@ function hadle_items () {
     update_this_lists()
     Refresh_invantory()
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile96`, function (sprite, location) {
+    if (!(spriteutils.isDestroyed(The_spike_sprtie_hitbox))) {
+        The_spike_sprtie_hitbox.setImage(img`
+            1 1 1 1 . . . . . . . . . . . . 
+            1 1 1 1 1 1 . . . . . . . . . . 
+            1 1 1 1 1 1 1 1 . . . . . . . . 
+            1 1 1 1 1 1 1 1 1 1 . . . . . . 
+            1 1 1 1 1 1 1 1 1 1 1 . . . . . 
+            1 1 1 1 1 1 1 1 1 1 . . . . . . 
+            1 1 1 1 1 1 1 1 . . . . . . . . 
+            1 1 1 1 1 1 . . . . . . . . . . 
+            1 1 1 1 1 1 1 1 . . . . . . . . 
+            1 1 1 1 1 1 1 1 1 1 . . . . . . 
+            1 1 1 1 1 1 1 1 1 1 1 . . . . . 
+            1 1 1 1 1 1 1 1 1 1 . . . . . . 
+            1 1 1 1 1 1 1 1 . . . . . . . . 
+            1 1 1 1 1 1 . . . . . . . . . . 
+            1 1 1 1 . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `)
+        tiles.placeOnTile(The_spike_sprtie_hitbox, location)
+    }
+})
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     if (!(menu_open)) {
         move_selector(-1, "left")
@@ -9324,7 +9533,7 @@ browserEvents.Z.onEvent(browserEvents.KeyEvent.Pressed, function () {
                         tiles.placeOnTile(sprites.readDataSprite(main_menu_text, "3"), tiles.getTileLocation(36, 5))
                         fancyText.setColor(sprites.readDataSprite(main_menu_text, "3"), 2)
                         pause(200)
-                        fancyText.setText(sprites.readDataSprite(main_menu_text, "4"), "luke, astro")
+                        fancyText.setText(sprites.readDataSprite(main_menu_text, "4"), "luke, gid, ")
                         tiles.placeOnTile(sprites.readDataSprite(main_menu_text, "4"), tiles.getTileLocation(36, 6))
                         fancyText.setColor(sprites.readDataSprite(main_menu_text, "4"), 2)
                         pause(200)
@@ -9498,6 +9707,29 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.acam, function (sprite, otherSpr
         }
     }
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile97`, function (sprite, location) {
+    if (!(spriteutils.isDestroyed(The_spike_sprtie_hitbox))) {
+        The_spike_sprtie_hitbox.setImage(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . 1 . . . . . 1 . . . . . 
+            . . . 1 1 1 . . . 1 1 1 . . . . 
+            . . . 1 1 1 . . . 1 1 1 . . . . 
+            . . 1 1 1 1 1 . 1 1 1 1 1 . . . 
+            . . 1 1 1 1 1 . 1 1 1 1 1 . . . 
+            . 1 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+            . 1 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 . 
+            `)
+        tiles.placeOnTile(The_spike_sprtie_hitbox, location)
+    }
+})
 let selected_item = 0
 let selceontype = ""
 let myEffect2: SpreadEffectData = null
@@ -9533,9 +9765,9 @@ let item_type: string[] = []
 let number = 0
 let maxPLayerLife = 0
 let playerlife = 0
+let incutesence = false
 let items_images: Image[] = []
 let invantory: Sprite = null
-let incutesence = false
 let thelifesprtie: Sprite = null
 let mySprite3: Sprite = null
 let thetalismanslotvar = 0
@@ -9543,7 +9775,6 @@ let theBbuttonitem = 0
 let armer_slot = 0
 let theAbutton = 0
 let theinvantorylist: number[] = []
-let NPCtext: fancyText.TextSprite = null
 let main_menu_text: fancyText.TextSprite = null
 let mainstartmenu = false
 let yes: fancyText.TextSprite = null
@@ -9556,6 +9787,7 @@ let wallcontrol: Sprite = null
 let zone = 0
 let bosses_defeated: number[] = []
 let partical_location: number[] = []
+let NPCtext: fancyText.TextSprite = null
 let dashes = 0
 let mySprite: Sprite = null
 let indash = false
@@ -9565,6 +9797,7 @@ let bossname: fancyText.TextSprite = null
 let thebossSprite: Sprite = null
 let statusbar: StatusBarSprite = null
 let inbossfight = false
+let The_spike_sprtie_hitbox: Sprite = null
 let canrun = false
 let cam: Sprite = null
 let camlockedonplayer = false
@@ -10129,6 +10362,25 @@ if (true) {
     canrun = true
 }
 load_player_animations()
+The_spike_sprtie_hitbox = sprites.create(img`
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    `, SpriteKind.spike)
+The_spike_sprtie_hitbox.setFlag(SpriteFlag.Invisible, true)
 forever(function () {
     for (let value of sprites.allOfKind(SpriteKind.Enemy)) {
         if (sprites.readDataNumber(value, "movement_type") == 1) {
@@ -11713,6 +11965,8 @@ forever(function () {
         }
         if (mySprite.tileKindAt(TileDirection.Center, assets.tile`myTile49`)) {
             kill_player("you died to spikes", "womp womp")
+        } else if (mySprite.isHittingTile(CollisionDirection.Bottom) && mySprite.tilemapLocation().row == tileUtil.tilemapProperty(tileUtil.currentTilemap(), tileUtil.TilemapProperty.Rows) - 1) {
+            kill_player("You well out", "of the world")
         }
         if (canrun) {
             if (!(indash)) {
